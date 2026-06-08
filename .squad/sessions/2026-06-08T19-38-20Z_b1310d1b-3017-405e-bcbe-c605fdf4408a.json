@@ -1,0 +1,27 @@
+{
+  "id": "b1310d1b-3017-405e-bcbe-c605fdf4408a",
+  "createdAt": "2026-06-08T19:38:09.581Z",
+  "lastActiveAt": "2026-06-08T19:56:00.593Z",
+  "messages": [
+    {
+      "role": "system",
+      "content": "🏗️ No team yet — casting one based on your project...",
+      "timestamp": "2026-06-08T19:38:20.604Z"
+    },
+    {
+      "role": "system",
+      "content": "⚠ Team casting failed: Execution failed: Error: Session was not created with authentication info or custom provider\nTry again or edit .squad/team.md directly.",
+      "timestamp": "2026-06-08T19:38:20.703Z"
+    },
+    {
+      "role": "system",
+      "content": "🏗️ No team yet — casting one based on your project...",
+      "timestamp": "2026-06-08T19:55:07.396Z"
+    },
+    {
+      "role": "system",
+      "content": "⚠ Team casting failed: Execution failed: Error: Session was not created with authentication info or custom provider\nTry again or edit .squad/team.md directly.",
+      "timestamp": "2026-06-08T19:55:07.491Z"
+    }
+  ]
+}
