@@ -29,3 +29,96 @@ body {
 .form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
   text-align: start;
 }
+
+/* ---- Patriot State College Help Desk theme ---- */
+:root {
+  --psc-navy: #16314f;
+  --psc-navy-dark: #0f233a;
+  --psc-red: #b22234;
+  --psc-gold: #c9a227;
+}
+
+.hd-navbar {
+  background: linear-gradient(90deg, var(--psc-navy-dark), var(--psc-navy));
+  border-bottom: 3px solid var(--psc-gold);
+}
+
+.hd-navbar .nav-link {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.hd-navbar .nav-link:hover,
+.hd-navbar .nav-link:focus {
+  color: #fff;
+}
+
+.hd-brand-mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  background: var(--psc-red);
+  color: #fff;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+.hd-avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--psc-gold);
+  color: var(--psc-navy-dark);
+  font-weight: 700;
+  font-size: 0.85rem;
+}
+
+.hd-persona-select {
+  max-width: 220px;
+}
+
+.hd-hero {
+  background: linear-gradient(120deg, var(--psc-navy), var(--psc-navy-dark));
+  color: #fff;
+}
+
+.hd-stat .hd-stat-value {
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.hd-stat .hd-stat-label {
+  color: var(--bs-secondary-color);
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* Conversation thread */
+.hd-message {
+  border: 1px solid var(--bs-border-color);
+  border-radius: 0.5rem;
+  padding: 0.75rem 1rem;
+  margin-bottom: 0.75rem;
+  background: #fff;
+}
+
+.hd-message-agent {
+  border-left: 4px solid var(--psc-navy);
+  background: #f5f8fc;
+}
+
+.hd-message-user {
+  border-left: 4px solid var(--psc-gold);
+}
+
+.hd-message-internal {
+  border-left: 4px solid var(--psc-red);
+  background: #fff8f0;
+}

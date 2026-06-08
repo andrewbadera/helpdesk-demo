@@ -1,0 +1,84 @@
+@page
+@model helpdesk_demo.Pages.SelfService.IndexModel
+@{
+    ViewData["Title"] = "Self-Service";
+}
+
+<h1 class="h3 mb-1">Self-service tools</h1>
+<p class="text-muted">
+    Resolve the most common account issues yourself &mdash; no ticket required.
+    Signed in as <strong>@Model.Me.FullName</strong>.
+</p>
+
+@if (Model.ResultTitle is not null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <strong>@Model.ResultTitle.</strong> @Model.ResultMessage
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<div class="row g-4">
+    <div class="col-md-6">
+        <div class="card h-100" id="password">
+            <div class="card-body d-flex flex-column">
+                <h2 class="h5">Reset my password</h2>
+                <p class="text-muted flex-grow-1">
+                    We'll email a secure, time-limited reset link to your address on file.
+                </p>
+                <form method="post" asp-page-handler="ResetPassword">
+                    <button type="submit" class="btn btn-primary w-100">Send reset link</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card h-100" id="unlock">
+            <div class="card-body d-flex flex-column">
+                <h2 class="h5">Unlock my account</h2>
+                <p class="text-muted flex-grow-1">
+                    Too many sign-in attempts, or back from deployment? Clear your lockout instantly.
+                </p>
+                <form method="post" asp-page-handler="Unlock">
+                    <button type="submit" class="btn btn-outline-primary w-100">Unlock account</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card h-100" id="mfa">
+            <div class="card-body d-flex flex-column">
+                <h2 class="h5">Reset multi-factor authentication</h2>
+                <p class="text-muted flex-grow-1">
+                    Got a new phone? Reset MFA and re-enroll a device on your next sign-in.
+                </p>
+                <form method="post" asp-page-handler="ResetMfa">
+                    <button type="submit" class="btn btn-outline-primary w-100">Reset MFA</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card h-100" id="email">
+            <div class="card-body d-flex flex-column">
+                <h2 class="h5">Update contact email</h2>
+                <p class="text-muted flex-grow-1">
+                    Keep benefit, financial aid, and enrollment notices coming to the right inbox.
+                </p>
+                <form method="post" asp-page-handler="UpdateEmail" class="mt-auto">
+                    <div class="input-group">
+                        <input type="email" name="contactEmail" class="form-control" placeholder="you@example.com" required />
+                        <button type="submit" class="btn btn-outline-primary">Update</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="alert alert-secondary mt-4 mb-0">
+    Still stuck? <a asp-page="/Tickets/Create">Submit a ticket</a> and a help desk agent will follow up.
+</div>

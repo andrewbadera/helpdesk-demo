@@ -1,7 +1,20 @@
+using helpdesk_demo.Services;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorPages();
+
+// Help desk demo services.
+builder.Services.AddSingleton<HelpDeskStore>();
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<CurrentUserService>();
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromHours(2);
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+});
 
 var app = builder.Build();
 
@@ -16,6 +29,8 @@ if (!app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 app.UseRouting();
+
+app.UseSession();
 
 app.UseAuthorization();
 

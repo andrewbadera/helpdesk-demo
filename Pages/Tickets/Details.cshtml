@@ -1,0 +1,162 @@
+@page "{id:int}"
+@model helpdesk_demo.Pages.Tickets.DetailsModel
+@{
+    ViewData["Title"] = Model.Ticket.Reference;
+    var statuses = Enum.GetNames<TicketStatus>();
+}
+
+@if (TempData["Flash"] is string flash)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @flash
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a asp-page="/Tickets/Index">Tickets</a></li>
+        <li class="breadcrumb-item active" aria-current="page">@Model.Ticket.Reference</li>
+    </ol>
+</nav>
+
+<div class="row g-4">
+    <div class="col-lg-8">
+        <div class="card mb-3">
+            <div class="card-body">
+                <div class="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-2">
+                    <h1 class="h4 mb-0">@Model.Ticket.Subject</h1>
+                    <div class="d-flex gap-2">
+                        <span class="badge @Model.Ticket.PriorityBadgeClass">@Model.Ticket.Priority</span>
+                        <span class="badge @Model.Ticket.StatusBadgeClass">@Model.Ticket.Status</span>
+                    </div>
+                </div>
+                <div class="text-muted small mb-3">
+                    @Model.Ticket.Reference &middot; @Model.Ticket.CategoryLabel &middot;
+                    opened @Model.Ticket.CreatedUtc.ToLocalTime().ToString("MMM d, yyyy h:mm tt")
+                </div>
+                <p class="mb-0" style="white-space:pre-wrap">@Model.Ticket.Description</p>
+            </div>
+        </div>
+
+        <h2 class="h5 mb-3">Conversation</h2>
+        <div class="hd-thread mb-4">
+            @{
+                var visibleComments = Model.Ticket.Comments
+                    .Where(c => Model.IsAgent || !c.IsInternalNote)
+                    .OrderBy(c => c.CreatedUtc)
+                    .ToList();
+            }
+            @if (!visibleComments.Any())
+            {
+                <p class="text-muted">No replies yet.</p>
+            }
+            @foreach (var c in visibleComments)
+            {
+                var mine = c.AuthorRole == Model.Me.Role && c.AuthorName == Model.Me.FullName;
+                <div class="hd-message @(c.IsInternalNote ? "hd-message-internal" : (c.AuthorRole == UserRole.Agent ? "hd-message-agent" : "hd-message-user"))">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <span class="fw-semibold">
+                            @c.AuthorName
+                            <span class="badge bg-light text-dark border ms-1">@c.AuthorRole</span>
+                            @if (c.IsInternalNote)
+                            {
+                                <span class="badge bg-warning text-dark ms-1">Internal note</span>
+                            }
+                        </span>
+                        <small class="text-muted">@c.CreatedUtc.ToLocalTime().ToString("MMM d, h:mm tt")</small>
+                    </div>
+                    <div style="white-space:pre-wrap">@c.Body</div>
+                </div>
+            }
+        </div>
+
+        <div class="card">
+            <div class="card-body">
+                <h2 class="h6">Add a reply</h2>
+                <form method="post" asp-page-handler="Reply" asp-route-id="@Model.Ticket.Id">
+                    <textarea name="Reply" class="form-control mb-2" rows="4"
+                              placeholder="@(Model.IsAgent ? "Respond to the submitter…" : "Add more detail or reply to the help desk…")"></textarea>
+                    @if (Model.IsAgent)
+                    {
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="checkbox" name="IsInternalNote" value="true" id="internalNote" />
+                            <label class="form-check-label" for="internalNote">
+                                Internal note (visible to agents only)
+                            </label>
+                        </div>
+                    }
+                    <button type="submit" class="btn btn-primary">Post reply</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="card mb-3">
+            <div class="card-header fw-semibold">Submitter</div>
+            <div class="card-body">
+                <div class="fw-semibold">@Model.Ticket.SubmitterName</div>
+                <div class="small text-muted">@Model.Ticket.SubmitterEmail</div>
+                <span class="badge bg-light text-dark border mt-2">@Model.Ticket.SubmitterRole</span>
+            </div>
+        </div>
+
+        @if (Model.IsAgent)
+        {
+            <div class="card">
+                <div class="card-header fw-semibold">Agent actions</div>
+                <div class="card-body">
+                    <form method="post" asp-page-handler="Update" asp-route-id="@Model.Ticket.Id">
+                        <div class="mb-3">
+                            <label class="form-label small mb-1">Status</label>
+                            <select name="Status" class="form-select">
+                                @foreach (var s in statuses)
+                                {
+                                    <option value="@s" selected="@(Model.Ticket.Status.ToString() == s)">@s</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small mb-1">Priority</label>
+                            <select name="Priority" class="form-select">
+                                @foreach (var p in Enum.GetNames<TicketPriority>())
+                                {
+                                    <option value="@p" selected="@(Model.Ticket.Priority.ToString() == p)">@p</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small mb-1">Assigned agent</label>
+                            <select name="AssignedAgent" class="form-select">
+                                <option value="">— Unassigned —</option>
+                                @foreach (var a in Model.Agents)
+                                {
+                                    <option value="@a" selected="@(Model.Ticket.AssignedAgent == a)">@a</option>
+                                }
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-success w-100">Save changes</button>
+                    </form>
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="card">
+                <div class="card-header fw-semibold">Status</div>
+                <div class="card-body">
+                    <p class="mb-1">Your ticket is currently <span class="badge @Model.Ticket.StatusBadgeClass">@Model.Ticket.Status</span></p>
+                    @if (Model.Ticket.AssignedAgent is not null)
+                    {
+                        <p class="small text-muted mb-0">Handled by @Model.Ticket.AssignedAgent.</p>
+                    }
+                    else
+                    {
+                        <p class="small text-muted mb-0">Waiting to be assigned to an agent.</p>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+</div>

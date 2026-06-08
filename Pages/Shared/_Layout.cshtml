@@ -1,9 +1,14 @@
-﻿<!DOCTYPE html>
+﻿@inject CurrentUserService CurrentUser
+@inject HelpDeskStore Store
+@{
+    var me = CurrentUser.Current;
+}
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - helpdesk_demo</title>
+    <title>@ViewData["Title"] - Patriot State College Help Desk</title>
     <script type="importmap"></script>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
@@ -11,22 +16,47 @@
 </head>
 <body>
     <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+        <nav class="navbar navbar-expand-lg navbar-dark hd-navbar box-shadow mb-4">
             <div class="container">
-                <a class="navbar-brand" asp-area="" asp-page="/Index">helpdesk_demo</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
+                <a class="navbar-brand d-flex align-items-center gap-2" asp-area="" asp-page="/Index">
+                    <span class="hd-brand-mark">PSC</span>
+                    <span class="d-flex flex-column lh-1">
+                        <span class="fw-bold">Patriot State College</span>
+                        <small class="text-light-emphasis">Student &amp; Faculty Help Desk</small>
+                    </span>
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse"
+                        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+                <div class="navbar-collapse collapse d-lg-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1">
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-page="/Index">Home</a>
+                            <a class="nav-link" asp-area="" asp-page="/Index">Dashboard</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-page="/Privacy">Privacy</a>
+                            <a class="nav-link" asp-area="" asp-page="/Tickets/Index">Tickets</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-area="" asp-page="/Tickets/Create">Submit a Ticket</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-area="" asp-page="/SelfService/Index">Self-Service</a>
                         </li>
                     </ul>
+                    <form method="post" asp-page="/Index" asp-page-handler="SwitchPersona" class="d-flex align-items-center gap-2">
+                        <span class="hd-avatar" title="@me.FullName">@me.Initials</span>
+                        <div class="d-flex flex-column lh-1 text-light me-1">
+                            <span class="small fw-semibold">@me.FullName</span>
+                            <small class="text-light-emphasis">@me.Role</small>
+                        </div>
+                        <select name="userId" class="form-select form-select-sm hd-persona-select" onchange="this.form.submit()" aria-label="Switch persona">
+                            @foreach (var u in Store.Users)
+                            {
+                                <option value="@u.Id" selected="@(u.Id == me.Id)">@u.FullName (@u.Role)</option>
+                            }
+                        </select>
+                    </form>
                 </div>
             </div>
         </nav>
@@ -37,9 +67,10 @@
         </main>
     </div>
 
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2026 - helpdesk_demo - <a asp-area="" asp-page="/Privacy">Privacy</a>
+    <footer class="border-top footer text-muted mt-4">
+        <div class="container d-flex flex-wrap justify-content-between">
+            <span>&copy; 2026 Patriot State College &mdash; Demo Help Desk (mock data only)</span>
+            <a asp-area="" asp-page="/Privacy">Privacy</a>
         </div>
     </footer>
 

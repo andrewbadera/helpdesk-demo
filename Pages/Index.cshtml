@@ -1,10 +1,165 @@
 ﻿@page
 @model IndexModel
 @{
-    ViewData["Title"] = "Home page";
+    ViewData["Title"] = "Dashboard";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<section class="hd-hero p-4 p-md-5 mb-4 rounded-3">
+    <div class="row align-items-center">
+        <div class="col-lg-8">
+            <h1 class="display-6 fw-bold mb-2">Welcome back, @Model.Me.FullName.Split(' ')[0]</h1>
+            <p class="lead mb-3">
+                @if (Model.IsAgent)
+                {
+                    <span>Your help desk queue at a glance. Triage, respond, and resolve &mdash; one ticket at a time.</span>
+                }
+                else
+                {
+                    <span>Need a hand? Submit a ticket, track your requests, or solve it yourself in seconds.</span>
+                }
+            </p>
+            <div class="d-flex flex-wrap gap-2">
+                <a class="btn btn-light fw-semibold" asp-page="/Tickets/Create">
+                    <i class="bi bi-plus-lg"></i> Submit a Ticket
+                </a>
+                <a class="btn btn-outline-light fw-semibold" asp-page="/Tickets/Index">View Tickets</a>
+                <a class="btn btn-outline-light fw-semibold" asp-page="/SelfService/Index">Self-Service Tools</a>
+            </div>
+        </div>
+        <div class="col-lg-4 text-lg-end mt-3 mt-lg-0">
+            @if (!string.IsNullOrWhiteSpace(Model.Me.MilitaryAffiliation))
+            {
+                <span class="badge bg-light text-dark fs-6 p-2">@Model.Me.MilitaryAffiliation</span>
+            }
+        </div>
+    </div>
+</section>
+
+<div class="row g-3 mb-4">
+    <div class="col-6 col-lg-3">
+        <div class="card hd-stat h-100">
+            <div class="card-body">
+                <div class="hd-stat-value">@Model.Stats.Open</div>
+                <div class="hd-stat-label">Open tickets</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="card hd-stat h-100">
+            <div class="card-body">
+                <div class="hd-stat-value text-danger">@Model.Stats.Urgent</div>
+                <div class="hd-stat-label">Urgent</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="card hd-stat h-100">
+            <div class="card-body">
+                <div class="hd-stat-value">@Model.Stats.Unassigned</div>
+                <div class="hd-stat-label">Unassigned</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="card hd-stat h-100">
+            <div class="card-body">
+                <div class="hd-stat-value text-success">@Model.Stats.Resolved</div>
+                <div class="hd-stat-label">Resolved</div>
+            </div>
+        </div>
+    </div>
 </div>
+
+@if (Model.IsAgent)
+{
+    <div class="d-flex justify-content-between align-items-center mb-2">
+        <h2 class="h4 mb-0">Agent queue</h2>
+        <a asp-page="/Tickets/Index" class="btn btn-sm btn-outline-primary">Open full queue</a>
+    </div>
+    <div class="card">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Ref</th>
+                        <th>Subject</th>
+                        <th>Submitter</th>
+                        <th>Priority</th>
+                        <th>Status</th>
+                        <th>Assigned</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var t in Model.AgentQueue)
+                    {
+                        <tr onclick="window.location='@Url.Page("/Tickets/Details", new { id = t.Id })'" style="cursor:pointer">
+                            <td class="text-nowrap fw-semibold">@t.Reference</td>
+                            <td>@t.Subject</td>
+                            <td class="text-nowrap">@t.SubmitterName</td>
+                            <td><span class="badge @t.PriorityBadgeClass">@t.Priority</span></td>
+                            <td><span class="badge @t.StatusBadgeClass">@t.Status</span></td>
+                            <td class="text-nowrap">@(t.AssignedAgent ?? "—")</td>
+                        </tr>
+                    }
+                    @if (!Model.AgentQueue.Any())
+                    {
+                        <tr><td colspan="6" class="text-center text-muted py-4">Queue is clear. Nice work.</td></tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}
+else
+{
+    <div class="row g-4">
+        <div class="col-lg-7">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <h2 class="h4 mb-0">My recent tickets</h2>
+                <a asp-page="/Tickets/Index" class="btn btn-sm btn-outline-primary">View all</a>
+            </div>
+            <div class="card">
+                <ul class="list-group list-group-flush">
+                    @foreach (var t in Model.MyRecentTickets)
+                    {
+                        <li class="list-group-item">
+                            <a class="d-flex justify-content-between align-items-start text-decoration-none text-reset"
+                               asp-page="/Tickets/Details" asp-route-id="@t.Id">
+                                <div>
+                                    <div class="fw-semibold">@t.Subject</div>
+                                    <small class="text-muted">@t.Reference &middot; @t.CategoryLabel &middot; updated @t.UpdatedUtc.ToLocalTime().ToString("MMM d")</small>
+                                </div>
+                                <span class="badge @t.StatusBadgeClass">@t.Status</span>
+                            </a>
+                        </li>
+                    }
+                    @if (!Model.MyRecentTickets.Any())
+                    {
+                        <li class="list-group-item text-center text-muted py-4">
+                            You haven't submitted any tickets yet.
+                            <a asp-page="/Tickets/Create">Submit your first one.</a>
+                        </li>
+                    }
+                </ul>
+            </div>
+        </div>
+        <div class="col-lg-5">
+            <h2 class="h4 mb-2">Quick self-service</h2>
+            <div class="list-group">
+                <a class="list-group-item list-group-item-action" asp-page="/SelfService/Index" asp-fragment="password">
+                    <strong>Reset my password</strong>
+                    <div class="small text-muted">Locked out? Get back in without waiting.</div>
+                </a>
+                <a class="list-group-item list-group-item-action" asp-page="/SelfService/Index" asp-fragment="mfa">
+                    <strong>Reset multi-factor authentication</strong>
+                    <div class="small text-muted">New phone? Re-enroll your MFA device.</div>
+                </a>
+                <a class="list-group-item list-group-item-action" asp-page="/SelfService/Index" asp-fragment="email">
+                    <strong>Update contact email</strong>
+                    <div class="small text-muted">Keep benefit and enrollment notices coming.</div>
+                </a>
+            </div>
+        </div>
+    </div>
+}
+
